@@ -9,13 +9,6 @@ pygame.init()
 
 font = pygame.font.SysFont('arial', 25)
 
-# reset
-# reward
-# play() -> direction
-# snake.py
-# game_iteration
-# is_collision
-
 
 class Direction(Enum):
     RIGHT = 1
@@ -34,7 +27,8 @@ BLUE2 = (0, 100, 255)
 BLACK = (0, 0, 0)
 
 BLOCK_SIZE = 20
-SPEED = 2000
+BASE_SPEED = 20
+SPEED_MULTIPLIERS = [0.25, 0.5, 1, 2, 5, 10, 50, 100, 500, 1000, 2000]
 
 
 class SnakeGameAI:
@@ -46,11 +40,15 @@ class SnakeGameAI:
         pygame.display.set_caption('Snake')
         self.clock = pygame.time.Clock()
 
+        self.speed_multiplier_index = 2 # set initial game speed to 1 X BASE_SPEED
+        self.attempt_count = 1
+
         # init game state
         self.reset()
 
-    def reset(self):
+    def reset(self, record = 0):
         # init/reset game state
+        self.attempt_count += 1
         self.direction = Direction.RIGHT
 
         self.head = Point(self.w / 2, self.h / 2)
@@ -62,6 +60,7 @@ class SnakeGameAI:
         self.food = None
         self._place_food()
         self.frame_iteration = 0
+        self.highscore = record
 
 
     def _place_food(self):
@@ -81,14 +80,13 @@ class SnakeGameAI:
                 pygame.quit()
                 quit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    self.direction = Direction.LEFT
-                elif event.key == pygame.K_RIGHT:
-                    self.direction = Direction.RIGHT
-                elif event.key == pygame.K_UP:
-                    self.direction = Direction.UP
-                elif event.key == pygame.K_DOWN:
-                    self.direction = Direction.DOWN
+                if event.key == pygame.K_x:
+                    self.speed_multiplier_index += 1
+                    self.speed_multiplier_index = self.speed_multiplier_index % len(SPEED_MULTIPLIERS)
+                elif event.key == pygame.K_z:
+                    self.speed_multiplier_index -= 1
+                    self.speed_multiplier_index = self.speed_multiplier_index % len(SPEED_MULTIPLIERS)
+
 
         # 2. move
         self._move(action)  # update the head
@@ -112,7 +110,7 @@ class SnakeGameAI:
 
         # 5. update ui and clock
         self._update_ui()
-        self.clock.tick(SPEED)
+        self.clock.tick(BASE_SPEED * SPEED_MULTIPLIERS[self.speed_multiplier_index])
         # 6. return game over and score
         return reward, game_over, self.score
 
@@ -138,8 +136,22 @@ class SnakeGameAI:
 
         pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
 
-        text = font.render("Score: " + str(self.score), True, WHITE)
+        # display attempt number
+        text = font.render("Attempt: " + str(self.attempt_count), True, WHITE) # insert correct attempt number here
         self.display.blit(text, [0, 0])
+
+        # display score
+        text = font.render("Score: " + str(self.score), True, WHITE)
+        self.display.blit(text, [0, 25])
+
+        # display speed multiplier
+        text = font.render("Speed: " + str(SPEED_MULTIPLIERS[self.speed_multiplier_index]) + "x", True, WHITE)
+        self.display.blit(text, [0, 50])
+
+        # display highscore
+        text = font.render("Highscore: " + str(self.highscore), True, WHITE)
+        self.display.blit(text, [0, 75])
+
         pygame.display.flip()
 
     def _move(self, action):
