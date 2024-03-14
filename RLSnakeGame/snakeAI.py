@@ -24,15 +24,25 @@ WHITE = (255, 255, 255)
 RED = (200, 0, 0)
 BLUE1 = (0, 0, 255)
 BLUE2 = (0, 100, 255)
+GREEN1 = (0, 255, 0)
+GREEN2 = (0, 255, 100)
 BLACK = (0, 0, 0)
 
 BLOCK_SIZE = 20
 BASE_SPEED = 20
 SPEED_MULTIPLIERS = [0.25, 0.5, 1, 2, 5, 10, 50, 100, 500, 1000, 2000]
 
+GAME_AREA_WIDTH = 640
+GAME_AREA_HEIGHT = 480
+
+SNAKE_SHAPE = 1  # 0 = circle, 1 = rectangle
+SNAKE_COLOR_1 = BLUE1
+SNAKE_COLOR_2 = BLUE2
+
+
 
 class SnakeGameAI:
-    def __init__(self, w=640, h=480):
+    def __init__(self, w=GAME_AREA_WIDTH, h=GAME_AREA_HEIGHT):
         self.w = w
         self.h = h
         # init display
@@ -131,13 +141,16 @@ class SnakeGameAI:
         self.display.fill(BLACK)
 
         for pt in self.snake:
-            pygame.draw.rect(self.display, BLUE1, pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
-            pygame.draw.rect(self.display, BLUE2, pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
+            if SNAKE_SHAPE == 0:
+                pygame.draw.circle(self.display, SNAKE_COLOR_1, (pt.x + BLOCK_SIZE / 2, pt.y + BLOCK_SIZE / 2), BLOCK_SIZE / 2)
+            else:
+                pygame.draw.rect(self.display, SNAKE_COLOR_1, pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
+                pygame.draw.rect(self.display, SNAKE_COLOR_2, pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
 
         pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
 
         # display attempt number
-        text = font.render("Attempt: " + str(self.attempt_count), True, WHITE) # insert correct attempt number here
+        text = font.render("Attempt: " + str(self.attempt_count), True, WHITE)  # insert correct attempt number here
         self.display.blit(text, [0, 0])
 
         # display score
@@ -146,11 +159,11 @@ class SnakeGameAI:
 
         # display speed multiplier
         text = font.render("Speed: " + str(SPEED_MULTIPLIERS[self.speed_multiplier_index]) + "x", True, WHITE)
-        self.display.blit(text, [0, 50])
+        self.display.blit(text, [GAME_AREA_WIDTH / 2 - 70, 0])
 
         # display highscore
         text = font.render("Highscore: " + str(self.highscore), True, WHITE)
-        self.display.blit(text, [0, 75])
+        self.display.blit(text, [GAME_AREA_WIDTH - 150, 0])
 
         pygame.display.flip()
 

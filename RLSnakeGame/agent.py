@@ -4,11 +4,17 @@ import numpy as np
 from snakeAI import SnakeGameAI, Point, Direction, BLOCK_SIZE
 from collections import deque
 from model import Linear_Qnet, QTrainer
-from plothelper import plot
+from plothelper import plot, plot_thread
 
-MAX_MEMORY = 100_000 # deque max memory size
-BATCH_SIZE = 1000 # memory sample (min) size
-LR = 0.001 # learning rate
+import multiprocessing
+
+from threading import Thread
+
+MAX_MEMORY = 100_000  # deque max memory size
+BATCH_SIZE = 1000  # memory sample (min) size
+LR = 0.001  # learning rate
+
+MULTIPROC = False
 
 
 class Agent:
@@ -136,6 +142,7 @@ def train():
 
         if game_over:
             # train long memory, plot results
+
             if score > record:
                 record = score
 
@@ -153,7 +160,69 @@ def train():
             total_score += score
             avg_score = total_score / agent.n_games
             plot_avg_scores.append(avg_score)
+
             plot(plot_scores, plot_avg_scores)
 
+def train_multiproc(queue):
+    plot_scores = []
+    plot_avg_scores = []
+    total_score = 0
+    record = 0
+    agent = Agent()
+    game = SnakeGameAI()
+
+    while True:
+        # get current state
+        state = agent.get_state(game)
+
+        # get action
+        action = agent.get_action(state)
+
+        # perform move and get new state
+        reward, game_over, score = game.play_step(action)
+        state_new = agent.get_state(game)
+
+        # train short memory
+        agent.train_short_memory(state, action, reward, state_new, game_over)
+
+        # remember
+        agent.remember(state, action, reward, state_new, game_over)
+
+        if game_over:
+            # train long memory, plot results
+
+            if score > record:
+                record = score
+
+            game.reset(record)
+            agent.n_games += 1
+            agent.train_long_memory()
+
+            if score > record:
+                record = score
+                agent.model.save()
+
+            # print('Game', agent.n_games, 'Score', score, 'Record', record)
+
+            plot_scores.append(score)
+            total_score += score
+            avg_score = total_score / agent.n_games
+            plot_avg_scores.append(avg_score)
+
+            queue.put((plot_scores, plot_avg_scores))
+
+
 if __name__ == '__main__':
-    train()
+    if MULTIPROC:
+        queue = multiprocessing.Queue()
+
+        game_process = multiprocessing.Process(target=train_multiproc, args=(queue,))
+        plot_process = multiprocessing.Process(target=plot_thread, args=(queue,))
+
+        game_process.start()
+        plot_process.start()
+
+        game_process.join()
+        plot_process.join()
+    else:
+        train()
