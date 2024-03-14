@@ -39,6 +39,8 @@ SNAKE_SHAPE = 1  # 0 = circle, 1 = rectangle
 SNAKE_COLOR_1 = BLUE1
 SNAKE_COLOR_2 = BLUE2
 
+REWARD_FOOD_DISTANCE = False
+
 
 
 class SnakeGameAI:
@@ -71,12 +73,14 @@ class SnakeGameAI:
         self._place_food()
         self.frame_iteration = 0
         self.highscore = record
+        # self.prev_food_distance = 1000
 
 
     def _place_food(self):
         x = random.randint(0, (self.w - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
         y = random.randint(0, (self.h - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
         self.food = Point(x, y)
+        self.prev_food_distance = self.get_food_distance()
         if self.food in self.snake:
             self._place_food()
 
@@ -97,6 +101,7 @@ class SnakeGameAI:
                     self.speed_multiplier_index -= 1
                     self.speed_multiplier_index = self.speed_multiplier_index % len(SPEED_MULTIPLIERS)
 
+        self.prev_food_distance = self.get_food_distance()
 
         # 2. move
         self._move(action)  # update the head
@@ -116,7 +121,11 @@ class SnakeGameAI:
             reward = 10
             self._place_food()
         else:
+            if REWARD_FOOD_DISTANCE:
+                reward = self.compute_reward()
+                # print("Reward: " + str(reward))
             self.snake.pop()
+
 
         # 5. update ui and clock
         self._update_ui()
@@ -197,3 +206,15 @@ class SnakeGameAI:
             y -= BLOCK_SIZE
 
         self.head = Point(x, y)
+
+    def get_food_distance(self):
+        return abs(self.food.x - self.head.x) + abs(self.food.y - self.head.y)
+
+    def compute_reward(self):
+        # Compute reward based on food distance (reward for approaching food, punish for going away from food)
+        food_distance = self.get_food_distance()
+        # print("Food distance: " + str(food_distance) + " Prev food distance: " + str(self.prev_food_distance))
+        if food_distance < self.prev_food_distance:
+            return 2
+        else:
+            return -2
