@@ -16,6 +16,8 @@ LR = 0.001  # learning rate
 
 MULTIPROC = False
 
+EXPLORATION_VAL = 80
+
 
 class Agent:
     def __init__(self):
@@ -24,7 +26,7 @@ class Agent:
         self.gamma = 0.9  # discount rate (val < 1 - modify val for different results)
         self.memory = deque(maxlen=MAX_MEMORY)  # removes elements by using popleft() when max length is exceeded
 
-        self.model = Linear_Qnet(11, 256, 3)  # 11 possible states, 3 possible actions, 256 - modify value for different results
+        self.model = Linear_Qnet(11, 256, 3)  # 11 possible states, 3 possible actions, 256 - hidden layer, modify value for different results
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
 
@@ -100,7 +102,7 @@ class Agent:
 
     def get_action(self, state):
         # random moves: tradeoff between exploration and exploitation
-        self. epsilon = 80 - self.n_games
+        self.epsilon = EXPLORATION_VAL - self.n_games
         action = [0, 0, 0]
         if random.randint(0, 200) < self.epsilon:
             # perform random action

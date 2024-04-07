@@ -26,7 +26,7 @@ BLUE1 = (0, 0, 255)
 BLUE2 = (0, 100, 255)
 GREEN1 = (0, 255, 0)
 GREEN2 = (0, 255, 100)
-BLACK = (0, 0, 0)
+BACKGROUND = (50, 50, 50)
 
 BLOCK_SIZE = 20
 BASE_SPEED = 20
@@ -36,10 +36,11 @@ GAME_AREA_WIDTH = 640
 GAME_AREA_HEIGHT = 480
 
 SNAKE_SHAPE = 1  # 0 = circle, 1 = rectangle
-SNAKE_COLOR_1 = BLUE1
-SNAKE_COLOR_2 = BLUE2
+SNAKE_COLOR_1 = GREEN1
+SNAKE_COLOR_2 = GREEN2
 
-REWARD_FOOD_DISTANCE = False
+REWARD_FOOD_DISTANCE = False  # if false, the snake will often spin in circles and loses because of time limit
+                              # if true, the snake is more likely to trap itself
 
 
 
@@ -147,7 +148,7 @@ class SnakeGameAI:
         return False
 
     def _update_ui(self):
-        self.display.fill(BLACK)
+        self.display.fill(BACKGROUND)
 
         for pt in self.snake:
             if SNAKE_SHAPE == 0:
