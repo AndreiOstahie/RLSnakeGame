@@ -52,6 +52,9 @@ class QTrainer:
         # predicted Q values with current state
         prediction = self.model(state)
 
+        # predict new Q value: Q_new = r + y * max(next_predicted_Q_value) -> only do this if not game_over
+        # predictionss[argmax(action)] = Q_new
+
         target = prediction.clone()
         for i in range(len(game_over)):
             q_new = reward[i]
@@ -60,13 +63,8 @@ class QTrainer:
 
             target[i][torch.argmax(action).item()] = q_new
 
-        # predict new Q value: Q_new = r + y * max(next_predicted_Q_value) -> only do this if not game_over
-        # prediction.clone
-        # predictionss[argmax(action)] = Q_new
-
         self.optimizer.zero_grad()  # empty gradient
         loss = self.criterion(target, prediction)
         loss.backward()
 
         self.optimizer.step()
-

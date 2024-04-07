@@ -42,6 +42,7 @@ SNAKE_COLOR_2 = GREEN2
 REWARD_FOOD_DISTANCE = False  # if false, the snake will often spin in circles and loses because of time limit
                               # if true, the snake is more likely to trap itself
 
+CHECK_TRAPPED = False
 
 
 class SnakeGameAI:
@@ -89,7 +90,7 @@ class SnakeGameAI:
         # increase frame iteration
         self.frame_iteration += 1
 
-        # 1. collect user input
+        # collect user input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -104,19 +105,26 @@ class SnakeGameAI:
 
         self.prev_food_distance = self.get_food_distance()
 
-        # 2. move
+        # move
         self._move(action)  # update the head
         self.snake.insert(0, self.head)
 
-        # 3. check if game over
+        # check if game is over
         reward = 0
         game_over = False
+
+        if CHECK_TRAPPED:
+            if self.is_trapped():
+                game_over = True
+                reward = -50
+                return reward, game_over, self.score
+
         if self.is_collision() or self.frame_iteration > 100 * len(self.snake):
             game_over = True
             reward = -10
             return reward, game_over, self.score
 
-        # 4. place new food or just move
+        # place new food or just move
         if self.head == self.food:
             self.score += 1
             reward = 10
@@ -128,10 +136,11 @@ class SnakeGameAI:
             self.snake.pop()
 
 
-        # 5. update ui and clock
+        # update ui and clock
         self._update_ui()
         self.clock.tick(BASE_SPEED * SPEED_MULTIPLIERS[self.speed_multiplier_index])
-        # 6. return game over and score
+
+        # return reward, game over and score
         return reward, game_over, self.score
 
     def is_collision(self, pt=None):
@@ -219,3 +228,35 @@ class SnakeGameAI:
             return 2
         else:
             return -2
+
+
+    def is_self_collision(self, pt=None):
+        if pt is None:
+            pt = self.head
+        # hits itself
+        if pt in self.snake[1:]:
+            return True
+        return False
+
+    def is_trapped(self):
+        collision_points = 0
+        # Simulate possible movements and check if the snake can move
+        directions = [Direction.RIGHT, Direction.LEFT, Direction.DOWN, Direction.UP]
+        for direction in directions:
+            x, y = self.head
+            if direction == Direction.RIGHT:
+                x += BLOCK_SIZE
+            elif direction == Direction.LEFT:
+                x -= BLOCK_SIZE
+            elif direction == Direction.DOWN:
+                y += BLOCK_SIZE
+            elif direction == Direction.UP:
+                y -= BLOCK_SIZE
+
+            if self.is_self_collision(Point(x, y)):
+                collision_points += 1
+
+        if collision_points == 4:
+            print("TRAPPED!")
+            return True
+        return False

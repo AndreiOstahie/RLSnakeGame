@@ -112,7 +112,7 @@ class Agent:
             # perform action based on the model
             state_tensor = torch.tensor(state, dtype=torch.float)
             prediction = self.model(state_tensor)  # predict next action
-            move = torch.argmax(prediction).item()  # get max argument from prediction and convert it from tensor to item
+            move = torch.argmax(prediction).item()  # get max argument from prediction and convert it from tensor to item (value)
             action[move] = 1
 
         return action
