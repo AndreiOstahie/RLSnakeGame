@@ -16,7 +16,7 @@ LR = 0.001  # learning rate
 
 MULTIPROC = False
 
-EXPLORATION_VAL = 80
+EXPLORATION_VAL = 75
 
 
 class Agent:
