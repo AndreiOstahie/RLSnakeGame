@@ -6,7 +6,7 @@ plt.ion()
 
 def plot(scores, avg_scores):
     display.clear_output(wait=True)
-    display.display((plt.gcf()))
+    # display.display((plt.gcf()))  # Displays "Figure(640x480)" in terminal
     plt.clf()
     plt.title('Training...')
     plt.xlabel('Number of Games')
@@ -18,6 +18,7 @@ def plot(scores, avg_scores):
     plt.text(len(avg_scores) - 1, avg_scores[-1], str(avg_scores[-1]))
 
     plt.pause(0.1)
+    plt.show(block=False)
 
 
 def plot_thread(queue):

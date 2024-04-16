@@ -1,23 +1,27 @@
 import torch
 import random
 import numpy as np
-from snakeAI import SnakeGameAI, Point, Direction, BLOCK_SIZE
+from snakeAI_testing import SnakeGameAI, Point, Direction, BLOCK_SIZE
 from collections import deque
 from model import Linear_Qnet, QTrainer
 from plothelper import plot, plot_thread
 
 import multiprocessing
 
+import argparse
+
 from threading import Thread
 
 MAX_MEMORY = 100_000  # deque max memory size
 BATCH_SIZE = 1000  # memory sample (min) size
 
-LR = 0.001  # learning rate
-DISCOUNT_RATE = 0.9  # discount rate (val < 1 - modify val for different results)
-EXPLORATION_VAL = 75  # decision randomness = 0% after EXPLORATION_VAL attempts
-HIDDEN_SIZE = 256  # neural network hidden layer size
+# LR = 0.001  # learning rate
+# DISCOUNT_RATE = 0.9  # discount rate (val < 1 - modify val for different results)
+# EXPLORATION_VAL = 75  # decision randomness = 0% after EXPLORATION_VAL attempts
+# HIDDEN_SIZE = 256  # neural network hidden layer size
 
+
+MAX_ATTEMPTS = 200
 
 MULTIPROC = False
 
@@ -25,13 +29,21 @@ MULTIPROC = False
 
 class Agent:
     def __init__(self):
+
+        parser = argparse.ArgumentParser(description='RL Snake Game')
+        parser.add_argument('--LR', type=float, default=0.001, help='Learning rate')
+        parser.add_argument('--DISCOUNT_RATE', type=float, default=0.9, help='Discount rate')
+        parser.add_argument('--EXPLORATION_VAL', type=int, default=75, help='Exploration value')
+        parser.add_argument('--HIDDEN_SIZE', type=int, default=256, help='Hidden size')
+        args = parser.parse_args()
+        self.exploration_val = args.EXPLORATION_VAL
         self.n_games = 0  # number of games
         self.epsilon = 0  # randomness param
-        self.gamma = DISCOUNT_RATE  # discount rate (val < 1 - modify val for different results)
+        self.gamma = args.DISCOUNT_RATE  # discount rate (val < 1 - modify val for different results)
         self.memory = deque(maxlen=MAX_MEMORY)  # removes elements by using popleft() when max length is exceeded
 
-        self.model = Linear_Qnet(11, HIDDEN_SIZE, 3)  # 11 possible states, 3 possible actions, 256 - hidden layer, modify value for different results
-        self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
+        self.model = Linear_Qnet(11, args.HIDDEN_SIZE, 3)  # 11 possible states, 3 possible actions, 256 - hidden layer, modify value for different results
+        self.trainer = QTrainer(self.model, lr=args.LR, gamma=self.gamma)
 
 
 
@@ -106,7 +118,7 @@ class Agent:
 
     def get_action(self, state):
         # random moves: tradeoff between exploration and exploitation
-        self.epsilon = EXPLORATION_VAL - self.n_games
+        self.epsilon = self.exploration_val - self.n_games
         action = [0, 0, 0]
         if random.randint(0, 200) < self.epsilon:
             # perform random action
@@ -130,6 +142,10 @@ def train():
     game = SnakeGameAI()
 
     while True:
+        if agent.n_games >= MAX_ATTEMPTS:
+            print(record)
+            print(avg_score)
+            break
         # get current state
         state = agent.get_state(game)
 
@@ -167,7 +183,7 @@ def train():
             avg_score = total_score / agent.n_games
             plot_avg_scores.append(avg_score)
 
-            plot(plot_scores, plot_avg_scores)
+            # plot(plot_scores, plot_avg_scores)
 
 def train_multiproc(queue):
     plot_scores = []
