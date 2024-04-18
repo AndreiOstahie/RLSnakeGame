@@ -39,7 +39,7 @@ SNAKE_SHAPE = 1  # 0 = circle, 1 = rectangle
 SNAKE_COLOR_1 = GREEN1
 SNAKE_COLOR_2 = GREEN2
 
-REWARD_FOOD_DISTANCE = False  # if false, the snake will often spin in circles and loses because of time limit
+REWARD_FOOD_DISTANCE = True  # if false, the snake will often spin in circles and loses because of time limit
                               # if true, the snake is more likely to trap itself
 
 CHECK_TRAPPED = False

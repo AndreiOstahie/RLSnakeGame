@@ -22,6 +22,8 @@ HIDDEN_SIZE = 256  # neural network hidden layer size
 MULTIPROC = False
 
 
+MAX_ATTEMPTS = 200  # max number of attempts; set to 0 to disable
+
 
 class Agent:
     def __init__(self):
@@ -130,6 +132,11 @@ def train():
     game = SnakeGameAI()
 
     while True:
+        # Stop execution at final attempt
+        if 0 < MAX_ATTEMPTS <= agent.n_games:
+            while True:
+                continue
+
         # get current state
         state = agent.get_state(game)
 

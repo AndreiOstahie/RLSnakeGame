@@ -3,7 +3,8 @@ import subprocess
 import csv
 
 # Define ranges for each parameter
-LR_values = [0.001, 0.01, 0.1]
+# LR_values = [0.001, 0.01, 0.1]
+LR_values = [0.1]
 DISCOUNT_RATE_values = [0.9, 0.95, 0.99]
 EXPLORATION_VAL_values = [50, 75, 100]
 HIDDEN_SIZE_values = [128, 256, 512]
@@ -13,7 +14,7 @@ HIDDEN_SIZE_values = [128, 256, 512]
 parameter_combinations = itertools.product(LR_values, DISCOUNT_RATE_values, EXPLORATION_VAL_values, HIDDEN_SIZE_values)
 
 # Open CSV file for writing
-with open('results_rewardFoodDistance.csv', 'w', newline='') as csvfile:
+with open('results_rewardFoodDistance_continue.csv', 'w', newline='') as csvfile:
     fieldnames = ['LR', 'DISCOUNT_RATE', 'EXPLORATION_VAL', 'HIDDEN_SIZE', 'Highscore', 'Average_Score']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
