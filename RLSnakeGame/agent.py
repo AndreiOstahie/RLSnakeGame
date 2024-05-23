@@ -32,7 +32,7 @@ class Agent:
         self.gamma = DISCOUNT_RATE  # discount rate (val < 1 - modify val for different results)
         self.memory = deque(maxlen=MAX_MEMORY)  # removes elements by using popleft() when max length is exceeded
 
-        self.model = Linear_Qnet(11, HIDDEN_SIZE, 3)  # 11 possible states, 3 possible actions, 256 - hidden layer, modify value for different results
+        self.model = Linear_Qnet(11, HIDDEN_SIZE, 3)  # 11 possible states, 3 possible actions, HIDDEN_SIZE hidden layer size
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
 
@@ -155,7 +155,6 @@ def train():
 
         if game_over:
             # train long memory, plot results
-
             if score > record:
                 record = score
 
@@ -203,7 +202,6 @@ def train_multiproc(queue):
 
         if game_over:
             # train long memory, plot results
-
             if score > record:
                 record = score
 

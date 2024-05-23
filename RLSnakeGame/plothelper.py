@@ -6,7 +6,7 @@ plt.ion()
 
 def plot(scores, avg_scores):
     display.clear_output(wait=True)
-    # display.display((plt.gcf()))  # Displays "Figure(640x480)" in terminal
+    # display.display((plt.gcf()))
     plt.clf()
     plt.title('Training...')
     plt.xlabel('Number of Games')

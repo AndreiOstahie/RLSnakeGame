@@ -297,8 +297,8 @@ SPEED_MULTIPLIERS = [0.25, 0.5, 1, 2, 5, 10, 50, 100, 500, 1000, 2000]
 GAME_AREA_WIDTH = 640
 GAME_AREA_HEIGHT = 480
 
-REWARD_FOOD_DISTANCE = False  # if false, the snake will often spin in circles and loses because of time limit
-                              # if true, the snake is more likely to trap itself
+REWARD_FOOD_DISTANCE = False  # positive reward for approaching food; negative reward for moving away from food
+                              # if True, prevents snake from spinning in circles
 
 CHECK_TRAPPED = False
 

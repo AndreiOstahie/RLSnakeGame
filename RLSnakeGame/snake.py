@@ -81,7 +81,7 @@ class SnakeGame:
         self._move(self.direction)  # update the head
         self.snake.insert(0, self.head)
 
-        # 3. check if game over
+        # 3. check if game is over
         game_over = False
         if self._is_collision():
             game_over = True
@@ -97,6 +97,7 @@ class SnakeGame:
         # 5. update ui and clock
         self._update_ui()
         self.clock.tick(SPEED)
+
         # 6. return game over and score
         return game_over, self.score
 
